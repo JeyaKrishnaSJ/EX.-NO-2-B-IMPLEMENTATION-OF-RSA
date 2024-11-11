@@ -20,59 +20,98 @@
   STEP-7: Decryption is done as cipherdmod n.
   
 ## PROGRAM: 
-    #include <stdio.h>
-    #include <math.h>
+```
+#include <stdio.h>
+#include <stdlib.h>
 
-    int gcd(int a, int h) {
-    int temp;
-    while (1) {
-        temp = a % h;
-        if (temp == 0) {
-            return h;
+// Function to calculate the gcd
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+
+// Function to calculate (base^exponent) % mod
+int mod_exp(int base, int exponent, int mod) {
+    int result = 1;
+    base = base % mod;
+    while (exponent > 0) {
+        if (exponent % 2 == 1) {
+            result = (result * base) % mod;
         }
-        a = h;
-        h = temp;
+        exponent = exponent >> 1;
+        base = (base * base) % mod;
     }
+    return result;
+}
+
+// Function to find the multiplicative inverse of e mod phi
+int mod_inverse(int e, int phi) {
+    int t = 0, newt = 1;
+    int r = phi, newr = e;
+    while (newr != 0) {
+        int quotient = r / newr;
+        int temp = t;
+        t = newt;
+        newt = temp - quotient * newt;
+
+        temp = r;
+        r = newr;
+        newr = temp - quotient * newr;
     }
+    if (r > 1) {
+        printf("e does not have an inverse mod phi\n");
+        return -1;
+    }
+    if (t < 0) t = t + phi;
+    return t;
+}
 
-    int main() {
-    int p = 3;
-    int q = 7;
-    int n = p * q;
-    int e = 2;
-    int phi = (p - 1) * (q - 1);
+int main() {
+    int p, q, n, phi, e, d, message;
 
-    while (e < phi) {
+    // Step 1: Choose two prime numbers
+    printf("Enter two prime numbers p and q: ");
+    scanf("%d %d", &p, &q);
+
+    // Step 2: Compute n and phi
+    n = p * q;
+    phi = (p - 1) * (q - 1);
+
+    // Step 3: Find a public key exponent e
+    for (e = 2; e < phi; e++) {
         if (gcd(e, phi) == 1) {
             break;
-        } else {
-            e = e + 1;
         }
     }
-    
-    int k = 2;
-    double d = (1.0 + (k * phi)) / e;
+    printf("Public key (e, n) = (%d, %d)\n", e, n);
 
-    // Message to be encrypted
-    double msg = 12.0;
+    // Step 4: Compute the private key d
+    d = mod_inverse(e, phi);
+    if (d == -1) {
+        return 1;
+    }
+    printf("Private key (d, n) = (%d, %d)\n", d, n);
 
-    printf("Message data = %f\n", msg);
+    // Step 5a: Encryption
+    printf("Enter a message (integer) to encrypt: ");
+    scanf("%d", &message);
+    int encrypted_message = mod_exp(message, e, n);
+    printf("Encrypted message: %d\n", encrypted_message);
 
-    // Encryption c = (msg ^ e) % n
-    double c = pow(msg, e);
-    c = fmod(c, n);
-    printf("Encrypted data = %f\n", c);
-
-    // Decryption m = (c ^ d) % n
-    double m = pow(c, d);
-    m = fmod(m, n);
-    printf("Original Message Sent = %f\n", m);
+    // Step 5b: Decryption
+    int decrypted_message = mod_exp(encrypted_message, d, n);
+    printf("Decrypted message: %d\n", decrypted_message);
 
     return 0;
-    }
+}
+```
 
 ## OUTPUT:
-![Screenshot 2024-09-25 153041](https://github.com/user-attachments/assets/12e49be7-94e0-46ee-90d7-0f4bf538ad63)
+![Screenshot 2024-11-08 195034](https://github.com/user-attachments/assets/db988e73-6699-4451-82e3-9730f3b2f900)
 
 
 ## RESULT:
