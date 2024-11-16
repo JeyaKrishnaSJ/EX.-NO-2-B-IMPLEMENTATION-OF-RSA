@@ -1,4 +1,4 @@
-# EX.-NO-2-B-IMPLEMENTATION-OF-RSA
+# EX.NO 5 IMPLEMENTATION OF RSA
 
 ## AIM:
   To write a C program to implement the RSA encryption algorithm.
@@ -23,8 +23,6 @@
 ```
 #include <stdio.h>
 #include <stdlib.h>
-
-// Function to calculate the gcd
 int gcd(int a, int b) {
     while (b != 0) {
         int temp = b;
@@ -33,8 +31,6 @@ int gcd(int a, int b) {
     }
     return a;
 }
-
-// Function to calculate (base^exponent) % mod
 int mod_exp(int base, int exponent, int mod) {
     int result = 1;
     base = base % mod;
@@ -47,8 +43,6 @@ int mod_exp(int base, int exponent, int mod) {
     }
     return result;
 }
-
-// Function to find the multiplicative inverse of e mod phi
 int mod_inverse(int e, int phi) {
     int t = 0, newt = 1;
     int r = phi, newr = e;
@@ -57,7 +51,6 @@ int mod_inverse(int e, int phi) {
         int temp = t;
         t = newt;
         newt = temp - quotient * newt;
-
         temp = r;
         r = newr;
         newr = temp - quotient * newr;
@@ -69,43 +62,29 @@ int mod_inverse(int e, int phi) {
     if (t < 0) t = t + phi;
     return t;
 }
-
 int main() {
     int p, q, n, phi, e, d, message;
-
-    // Step 1: Choose two prime numbers
     printf("Enter two prime numbers p and q: ");
     scanf("%d %d", &p, &q);
-
-    // Step 2: Compute n and phi
     n = p * q;
     phi = (p - 1) * (q - 1);
-
-    // Step 3: Find a public key exponent e
     for (e = 2; e < phi; e++) {
         if (gcd(e, phi) == 1) {
             break;
         }
     }
     printf("Public key (e, n) = (%d, %d)\n", e, n);
-
-    // Step 4: Compute the private key d
     d = mod_inverse(e, phi);
     if (d == -1) {
         return 1;
     }
     printf("Private key (d, n) = (%d, %d)\n", d, n);
-
-    // Step 5a: Encryption
     printf("Enter a message (integer) to encrypt: ");
     scanf("%d", &message);
     int encrypted_message = mod_exp(message, e, n);
     printf("Encrypted message: %d\n", encrypted_message);
-
-    // Step 5b: Decryption
     int decrypted_message = mod_exp(encrypted_message, d, n);
     printf("Decrypted message: %d\n", decrypted_message);
-
     return 0;
 }
 ```
